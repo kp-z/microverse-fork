@@ -28,22 +28,48 @@ var direction_stability_timer = 0.0  # 方向稳定计时器
 
 func _ready():
 	add_to_group("controllable_characters")
-	
+
+	# 确保 AnimatedSprite2D 存在且可见
+	var animated_sprite = $AnimatedSprite2D
+	if not animated_sprite:
+		print("[CharacterController] 错误: AnimatedSprite2D 节点不存在于 ", name)
+		return
+
+	# 确保角色可见
+	animated_sprite.visible = true
+	visible = true
+
+	# 检查 SpriteFrames 资源
+	if not animated_sprite.sprite_frames:
+		print("[CharacterController] 错误: SpriteFrames 资源不存在于 ", name)
+		return
+
+	print("[CharacterController] ", name, " 初始化完成，动画数量: ", animated_sprite.sprite_frames.get_animation_names().size())
+
 	# 创建ChatHistory节点
 	if not has_node("ChatHistory"):
 		var chat_history_scene = load("res://scene/ChatHistory.tscn")
-		var chat_history = chat_history_scene.instantiate()
-		add_child(chat_history)
-	
+		if chat_history_scene:
+			var chat_history = chat_history_scene.instantiate()
+			add_child(chat_history)
+
 	# 创建AI代理
 	ai_agent = AIAgent.new()
 	add_child(ai_agent)
-	
+
 	# 创建AI模型显示标签
 	create_ai_model_label()
-	
+
 	# 设置初始动画
-	$AnimatedSprite2D.play("idle_" + facing_direction)
+	var initial_anim = "idle_" + facing_direction
+	if animated_sprite.sprite_frames.has_animation(initial_anim):
+		animated_sprite.play(initial_anim)
+	else:
+		print("[CharacterController] 警告: 初始动画不存在: ", initial_anim)
+		# 尝试播放默认动画
+		if animated_sprite.sprite_frames.has_animation("idle_down"):
+			animated_sprite.play("idle_down")
+			facing_direction = "down"
 
 func set_selected(selected: bool):
 	is_selected = selected
@@ -237,6 +263,13 @@ func _recalculate_path():
 		print("[CharacterController] %s 重新计算路径完成，路径点数量: %d" % [name, navigation_path.size()])
 
 func _physics_process(delta):
+	# 调试：检查角色可见性
+	_debug_visibility()
+
+	# 确保角色在正确的渲染层级
+	if z_index < 0:
+		z_index = 0
+
 	# AI控制的角色或被选中的角色都可以移动
 	if not is_selected and ai_agent.is_player_controlled:
 		return
@@ -312,7 +345,11 @@ func _physics_process(delta):
 	
 	# 更新动画
 	update_animation()
-	
+
+	# 强制刷新渲染状态（修复移动时消失的问题）
+	if velocity != Vector2.ZERO:
+		_force_refresh_rendering()
+
 	if not is_sitting:
 		move_and_slide()
 
@@ -396,28 +433,53 @@ func toggle_sit():
 
 func update_animation():
 	var animated_sprite = $AnimatedSprite2D
+	if not animated_sprite:
+		print("[CharacterController] 警告: AnimatedSprite2D 节点不存在")
+		return
+
+	# 确保 AnimatedSprite2D 可见
+	animated_sprite.visible = true
+
 	if is_sitting:
 		return
-		
+
 	if velocity == Vector2.ZERO:
 		# 根据最后移动的方向播放对应的idle动画
 		var idle_anim = "idle_" + facing_direction
-		animated_sprite.play(idle_anim)
+		if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(idle_anim):
+			if animated_sprite.animation != idle_anim:
+				animated_sprite.play(idle_anim)
+		else:
+			print("[CharacterController] 警告: 动画不存在: ", idle_anim)
+			# 回退到默认动画
+			if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("idle_down"):
+				animated_sprite.play("idle_down")
 	else:
+		var new_anim = ""
 		if abs(velocity.x) > abs(velocity.y):
 			if velocity.x > 0:
-				animated_sprite.play("run_right")
+				new_anim = "run_right"
 				facing_direction = "right"
 			else:
-				animated_sprite.play("run_left")
+				new_anim = "run_left"
 				facing_direction = "left"
 		else:
 			if velocity.y > 0:
-				animated_sprite.play("run_down")
+				new_anim = "run_down"
 				facing_direction = "down"
 			else:
-				animated_sprite.play("run_up")
+				new_anim = "run_up"
 				facing_direction = "up"
+
+		# 检查动画是否存在
+		if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(new_anim):
+			if animated_sprite.animation != new_anim:
+				animated_sprite.play(new_anim)
+		else:
+			print("[CharacterController] 警告: 动画不存在: ", new_anim)
+			# 回退到默认动画
+			if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("idle_down"):
+				animated_sprite.play("idle_down")
 
 # 移动到椅子并自动坐下
 func move_to_chair(chair):
@@ -530,3 +592,55 @@ func _on_ai_settings_changed(new_settings):
 	if ai_label and ai_label.has_method("refresh_display"):
 		ai_label.refresh_display()
 		print("[CharacterController] AI模型标签已更新：", name)
+
+# 调试函数：检查角色可见性
+func _debug_visibility():
+	var animated_sprite = $AnimatedSprite2D
+	if not animated_sprite:
+		return
+
+	# 如果角色不可见，强制设为可见并记录日志
+	if not visible:
+		print("[CharacterController] 警告: 角色 ", name, " 不可见，强制设为可见")
+		visible = true
+
+	if not animated_sprite.visible:
+		print("[CharacterController] 警告: AnimatedSprite2D ", name, " 不可见，强制设为可见")
+		animated_sprite.visible = true
+
+	# 检查纹理是否存在
+	if not animated_sprite.sprite_frames:
+		print("[CharacterController] 错误: ", name, " 的 SpriteFrames 丢失")
+		return
+
+	# 检查当前动画是否有效
+	var current_anim = animated_sprite.animation
+	if current_anim != "" and not animated_sprite.sprite_frames.has_animation(current_anim):
+		print("[CharacterController] 错误: ", name, " 的动画 ", current_anim, " 不存在")
+		# 回退到默认动画
+		if animated_sprite.sprite_frames.has_animation("idle_down"):
+			animated_sprite.play("idle_down")
+			facing_direction = "down"
+
+# 强制刷新渲染状态（修复移动时消失的问题）
+func _force_refresh_rendering():
+	var animated_sprite = $AnimatedSprite2D
+	if not animated_sprite:
+		return
+
+	# 强制设置可见性
+	visible = true
+	animated_sprite.visible = true
+
+	# 确保在正确的渲染层级
+	z_index = max(0, z_index)
+
+	# 强制刷新 modulate（透明度和颜色）
+	modulate = Color.WHITE
+	animated_sprite.modulate = Color.WHITE
+
+	# 确保没有被遮罩或裁剪
+	clip_contents = false
+
+	# 强制标记为需要重绘
+	queue_redraw()

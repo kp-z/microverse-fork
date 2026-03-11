@@ -1,12 +1,12 @@
 extends Camera2D
 
 @export var follow_speed: float = 5.0  # 相机跟随速度
-@export var zoom_level: float = 0.8    # 默认缩放级别（全局视图，显示更多内容）
-@export var character_zoom: float = 1.5  # 跟随角色时的缩放级别
+@export var zoom_level: float = 2.0    # 默认缩放级别（大幅放大显示，更清晰的视图）
+@export var character_zoom: float = 2.5  # 跟随角色时的缩放级别
 @export var drag_speed: float = 1.0  # 拖拽移动的速度
 @export var zoom_speed: float = 0.1  # 滚轮缩放速度
 @export var min_zoom: float = 0.5  # 最小缩放级别
-@export var max_zoom: float = 2.0  # 最大缩放级别 拖拽移动速度
+@export var max_zoom: float = 4.0  # 最大缩放级别 拖拽移动速度
 
 var target: Node2D = null
 var original_position: Vector2
@@ -15,7 +15,7 @@ var drag_start_position: Vector2
 var camera_start_position: Vector2
 var manual_position: Vector2  # 手动拖拽后的位置
 var is_manual_mode: bool = false  # 是否处于手动控制模式
-var manual_zoom: float = 0.8  # 手动模式下的缩放级别
+var manual_zoom: float = 2.0  # 手动模式下的缩放级别（与默认缩放保持一致）
 
 func _ready():
 		# 设置初始位置为地图中心（根据你的地图大小调整这些值）
