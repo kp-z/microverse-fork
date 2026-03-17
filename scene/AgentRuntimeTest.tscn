@@ -1,0 +1,69 @@
+[gd_scene load_steps=6 format=3 uid="uid://agent_runtime_test_001"]
+
+[ext_resource type="Script" path="res://script/AgentRuntimeTest.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://dialog_system_001" path="res://scene/ui/AgentDialogSystem.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://task_monitor_panel_001" path="res://scene/ui/TaskMonitorPanel.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://task_control_panel_001" path="res://scene/ui/TaskControlPanel.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://c8v7x9y2z3a4b" path="res://scene/ui/ActionButtonPanel.tscn" id="5"]
+
+[node name="AgentRuntimeTest" type="Node2D"]
+script = ExtResource("1")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="AgentDialogSystem" parent="CanvasLayer" instance=ExtResource("2")]
+visible = false
+
+[node name="TaskMonitorPanel" parent="CanvasLayer" instance=ExtResource("3")]
+visible = false
+
+[node name="TaskControlPanel" parent="CanvasLayer" instance=ExtResource("4")]
+
+[node name="ActionButtonPanel" parent="CanvasLayer" instance=ExtResource("5")]
+
+[node name="TestUI" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 200.0
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/TestUI"]
+layout_mode = 1
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 200.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/TestUI/PanelContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Agent Runtime 测试"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="OpenDialogButton" type="Button" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "打开对话框 (D)"
+
+[node name="OpenMonitorButton" type="Button" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "打开监控面板 (M)"
+
+[node name="StartWorkButton" type="Button" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "启动测试任务 (S)"
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HelpLabel" type="Label" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "快捷键:
+D - 对话框
+M - 监控面板
+S - 启动任务
+ESC - 关闭面板"
+autowrap_mode = 3
