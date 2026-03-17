@@ -1,5 +1,6 @@
-[gd_scene load_steps=72 format=4 uid="uid://nhba2jdtsjsx"]
+[gd_scene load_steps=73 format=4 uid="uid://nhba2jdtsjsx"]
 
+[ext_resource type="PackedScene" uid="uid://c8v7x9y2z3a4b" path="res://scene/ui/ActionButtonPanel.tscn" id="0_action"]
 [ext_resource type="Texture2D" uid="uid://bg7vxkearntad" path="res://asset/maps/interiors/3_Bathroom_32x32.png" id="1_xsptx"]
 [ext_resource type="Texture2D" uid="uid://u2qghko6a2k2" path="res://asset/maps/interiors/Room_Builder_32x32.png" id="2_0ao8h"]
 [ext_resource type="Texture2D" uid="uid://dqd2b24vw6w0o" path="res://asset/maps/interiors/Modern_Office_32x32.png" id="3_wvn72"]
@@ -17,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://dbccn6v22ht7s" path="res://asset/maps/interiors/21_Beach_32x32.png" id="13_a4dmk"]
 [ext_resource type="Texture2D" uid="uid://cftqaclcrf3te" path="res://asset/maps/interiors/23_Television_and_Film_Studio_32x32.png" id="14_nb08b"]
 [ext_resource type="Script" uid="uid://msfgxiljxg7n" path="res://script/CharacterManager.gd" id="15_y022p"]
+[ext_resource type="Script" path="res://script/CharacterWorkController.gd" id="15_workctrl"]
 [ext_resource type="PackedScene" uid="uid://dlgjw4hrdk1xu" path="res://scene/prefab/BackChair.tscn" id="16_dme33"]
 [ext_resource type="Script" uid="uid://jukfjtge0p5v" path="res://script/CameraController.gd" id="16_tgr77"]
 [ext_resource type="PackedScene" uid="uid://b6cvfnhl4xvjo" path="res://scene/prefab/FrontChair.tscn" id="17_xf40e"]
@@ -16964,6 +16966,8 @@ position = Vector2(120, 512)
 
 [node name="GodUI" parent="CanvasLayer" instance=ExtResource("27_ik20s")]
 
+[node name="ActionButtonPanel" parent="CanvasLayer" instance=ExtResource("0_action")]
+
 [node name="RoomArea" type="Node2D" parent="."]
 visible = false
 
@@ -17050,3 +17054,6 @@ shape = SubResource("RectangleShape2D_285b5")
 
 [node name="RoomManager" type="Node2D" parent="."]
 script = ExtResource("31_8h615")
+
+[node name="CharacterWorkController" type="Node" parent="."]
+script = ExtResource("15_workctrl")
