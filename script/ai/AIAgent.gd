@@ -546,11 +546,7 @@ func make_decision():
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 为每个角色创建唯一的回调连接
-	# 断开之前可能存在的连接，避免重复连接
-	if http_request.request_completed.is_connected(_on_decision_request_completed):
-		http_request.request_completed.disconnect(_on_decision_request_completed)
-	
+	# HTTPRequest 每次新建；勿对带默认参回调做 is_connected（Godot Web 会报 callable null）
 	# 使用带有角色标识的回调函数
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_decision_request_completed(result, response_code, headers, body, character)
@@ -661,10 +657,7 @@ func make_conversation_decision():
 	print(prompt)
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 连接回调函数
-	if http_request.request_completed.is_connected(_on_conversation_decision_completed):
-		http_request.request_completed.disconnect(_on_conversation_decision_completed)
-	
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_conversation_decision_completed(result, response_code, headers, body, character, conversation_partner)
 	)
@@ -739,10 +732,7 @@ func _generate_farewell_message(char_node, partner_node):
 	var character_name = char_node.name if char_node else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 连接回调函数
-	if http_request.request_completed.is_connected(_on_farewell_message_completed):
-		http_request.request_completed.disconnect(_on_farewell_message_completed)
-	
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_farewell_message_completed(result, response_code, headers, body, char_node, partner_node)
 	)
@@ -884,10 +874,7 @@ func generate_thinking_content(char_node = null):
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接，避免重复连接
-	if http_request.request_completed.is_connected(_on_thinking_request_completed):
-		http_request.request_completed.disconnect(_on_thinking_request_completed)
-	
+	# HTTPRequest 每次新建，直接 connect
 	# 使用带有角色标识的回调函数
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_thinking_request_completed(result, response_code, headers, body, target_character)
@@ -947,11 +934,7 @@ func _generate_initial_tasks():
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_generate_tasks_completed):
-		http_request.request_completed.disconnect(_on_generate_tasks_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_generate_tasks_completed(result, response_code, headers, body, character)
 	)
@@ -1071,11 +1054,7 @@ func _adjust_tasks(char_node = null):
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_adjust_tasks_completed):
-		http_request.request_completed.disconnect(_on_adjust_tasks_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_adjust_tasks_completed(result, response_code, headers, body, target_character)
 	)
@@ -1177,11 +1156,7 @@ func _continue_current_task(char_node = null):
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_continue_task_completed):
-		http_request.request_completed.disconnect(_on_continue_task_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_continue_task_completed(result, response_code, headers, body, target_character, current_task)
 	)
@@ -1261,11 +1236,7 @@ func _execute_task_movement(target_character, current_task):
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_task_movement_completed):
-		http_request.request_completed.disconnect(_on_task_movement_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_task_movement_completed(result, response_code, headers, body, target_character, current_task)
 	)
@@ -1392,11 +1363,7 @@ func _execute_task_conversation(target_character, current_task):
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_task_conversation_completed):
-		http_request.request_completed.disconnect(_on_task_conversation_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_task_conversation_completed(result, response_code, headers, body, target_character, current_task, available_chars)
 	)
@@ -1531,11 +1498,7 @@ func _execute_task_thinking(target_character, current_task):
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_task_thinking_completed):
-		http_request.request_completed.disconnect(_on_task_thinking_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_task_thinking_completed(result, response_code, headers, body, target_character, current_task)
 	)
@@ -1895,11 +1858,7 @@ func _handle_target_not_found(target_character, target_name: String, current_tas
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_target_not_found_decision_completed):
-		http_request.request_completed.disconnect(_on_target_not_found_decision_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_target_not_found_decision_completed(result, response_code, headers, body, target_character, target_name, current_task)
 	)
@@ -1986,11 +1945,7 @@ func _choose_room_to_search(target_character, target_name: String, current_task)
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_room_choice_completed):
-		http_request.request_completed.disconnect(_on_room_choice_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_room_choice_completed(result, response_code, headers, body, target_character, target_name, current_task, room_names)
 	)
@@ -2074,11 +2029,7 @@ func _reschedule_task(target_character, current_task, failed_target_name: String
 	var character_name = character.name if character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
-	# 断开之前可能存在的连接
-	if http_request.request_completed.is_connected(_on_reschedule_task_completed):
-		http_request.request_completed.disconnect(_on_reschedule_task_completed)
-	
-	# 连接回调函数
+	# 连接回调函数（新 HTTPRequest，仅 connect）
 	http_request.request_completed.connect(func(result, response_code, headers, body): 
 		_on_reschedule_task_completed(result, response_code, headers, body, target_character, current_task)
 	)

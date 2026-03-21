@@ -255,6 +255,9 @@ static func get_url(api_type: String, model: String = "") -> String:
 # 解析API响应
 static func parse_response(api_type: String, response: Dictionary, character_name: String = "") -> String:
 	_initialize()
+	# Open Adventure 后端 /microverse/chat 包装为统一 JSON，优先解析（与 api_type 无关）
+	if response != null and response is Dictionary and response.has("microverse_chat"):
+		return str(response["microverse_chat"])
 	var provider = get_provider(api_type)
 	
 	match provider.response_parser:

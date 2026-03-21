@@ -16,6 +16,12 @@ var current_settings = {
 	"model": "qwen2.5:1.5b",
 	"api_key": "",
 	"show_ai_model_label": true,
+	# Open Adventure 后端（Microverse / AgentRuntime）
+	"open_adventure_base_url": "http://127.0.0.1:8000",
+	"open_adventure_api_prefix": "/api",
+	"open_adventure_auth_token": "",
+	# 对话来源：local=本机 APIManager（Ollama 等）；open_adventure=POST /microverse/chat
+	"dialog_provider": "local",
 	# 显示设置
 	"window_mode": "windowed", # windowed | fullscreen | exclusive_fullscreen
 	"screen_width": 1280,
@@ -87,15 +93,20 @@ func load_settings():
 				var data = JSON.parse_string(content)
 				if data:
 					current_settings = data
+					_merge_missing_setting_keys()
 					print("[SettingsManager] 设置已从文件加载")
 				else:
 					print("[SettingsManager错误] JSON解析失败，使用默认设置")
+					_merge_missing_setting_keys()
 			else:
 				print("[SettingsManager警告] 配置文件为空，使用默认设置")
+				_merge_missing_setting_keys()
 		else:
 			print("[SettingsManager错误] 无法打开配置文件进行读取：", CONFIG_FILE)
+			_merge_missing_setting_keys()
 	else:
 		print("[SettingsManager] 配置文件不存在，使用默认设置")
+		_merge_missing_setting_keys()
 	
 	# 加载角色AI设置
 	load_character_ai_settings()
@@ -163,6 +174,26 @@ func load_character_ai_settings():
 			print("[SettingsManager错误] 无法打开角色AI配置文件进行读取：", CHARACTER_AI_CONFIG_FILE)
 	else:
 		print("[SettingsManager] 角色AI配置文件不存在，使用空配置")
+
+## 为旧版 user://settings.cfg 补齐新增字段（不覆盖已有值）
+func _merge_missing_setting_keys() -> void:
+	var defs := {
+		"api_type": "Ollama",
+		"model": "qwen2.5:1.5b",
+		"api_key": "",
+		"show_ai_model_label": true,
+		"open_adventure_base_url": "http://127.0.0.1:8000",
+		"open_adventure_api_prefix": "/api",
+		"open_adventure_auth_token": "",
+		"dialog_provider": "local",
+		"window_mode": "windowed",
+		"screen_width": 1280,
+		"screen_height": 720,
+	}
+	for k in defs:
+		if not current_settings.has(k):
+			current_settings[k] = defs[k]
+
 
 # 应用显示与窗口模式设置
 func apply_display_settings(settings: Dictionary = {}):

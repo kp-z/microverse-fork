@@ -64,7 +64,13 @@ func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest
 				http_request.queue_free()
 		)
 	)
-	# 获取角色对应的AI设置
+	# 使用 Open Adventure 后端 Microverse Chat（与本地 Ollama 等互斥）
+	if str(current_settings.get("dialog_provider", "local")) == "open_adventure":
+		print("[APIManager] 对话来源：Open Adventure /microverse/chat，角色：", character_name)
+		await _emit_open_adventure_chat_result(http_request, prompt, character_name)
+		return http_request
+
+	# 获取角色对应的AI设置（本地/第三方 LLM）
 	var ai_settings = current_settings
 	if character_name != "":
 		ai_settings = SettingsManager.get_character_ai_settings(character_name)
@@ -83,6 +89,40 @@ func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest
 	print("[APIManager] 创建HTTPRequest节点：", http_request.name)
 	http_request.request(url, headers, HTTPClient.METHOD_POST, data)
 	return http_request
+
+
+## 调用 MicroverseAPIClient，并伪造 request_completed 以复用现有解析链（APIConfig.microverse_chat）
+func _emit_open_adventure_chat_result(http_request: HTTPRequest, prompt: String, character_name: String) -> void:
+	var who := character_name.strip_edges() if character_name.strip_edges() != "" else "Unknown"
+	var client := get_node_or_null("/root/MicroverseAPIClient")
+	if client == null:
+		push_error("[APIManager] MicroverseAPIClient 未注册，无法使用 open_adventure 对话模式")
+		http_request.request_completed.emit(
+			HTTPRequest.RESULT_CANT_CONNECT,
+			503,
+			PackedStringArray(),
+			"{}".to_utf8_buffer()
+		)
+		return
+	if client.has_method("refresh_config_from_settings"):
+		client.refresh_config_from_settings()
+	var res: Dictionary = await client.post_microverse_chat(who, prompt, {})
+	# 等一帧再发信号，确保调用方已连接 request_completed
+	await get_tree().process_frame
+	var result := HTTPRequest.RESULT_SUCCESS
+	var code := 200
+	var body_bytes: PackedByteArray
+	if res.get("success", false):
+		var text := str(res.data.get("response", ""))
+		body_bytes = JSON.stringify({"microverse_chat": text}).to_utf8_buffer()
+	else:
+		result = HTTPRequest.RESULT_CANT_CONNECT
+		code = 502
+		body_bytes = JSON.stringify({
+			"microverse_chat": "",
+			"_error": str(res.get("error", "unknown"))
+		}).to_utf8_buffer()
+	http_request.request_completed.emit(result, code, PackedStringArray(), body_bytes)
 
 # 生成AI决策
 func generate_decision(prompt: String, character_name: String = "") -> HTTPRequest:

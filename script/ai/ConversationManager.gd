@@ -8,7 +8,7 @@ var conversation_id: String
 var is_active: bool = false
 
 # 对话相关的场景引用
-var dialog_bubble_scene = preload("res://scene/UI/DialogBubble.tscn")
+var dialog_bubble_scene = preload("res://scene/ui/DialogBubble.tscn")
 var chat_history_scene = preload("res://scene/ChatHistory.tscn")
 
 # AI相关脚本引用
@@ -118,11 +118,15 @@ func generate_dialog():
 		print("[ConversationManager] 无法获取APIManager")
 		return
 	
-	http_request = await api_manager.generate_dialog(prompt)
+	# 传入说话者名称，供 open_adventure 模式 POST /microverse/chat 使用
+	http_request = await api_manager.generate_dialog(prompt, str(speaker.name))
 	
 	# 连接回调函数
-	if http_request and not http_request.request_completed.is_connected(_on_request_completed):
-		http_request.request_completed.connect(_on_request_completed)
+	# Web/HTML5 导出下 is_connected(方法引用) 可能报 “callable is null”，统一用 Callable 判断与连接
+	if http_request:
+		var completed_cb := Callable(self, "_on_request_completed")
+		if not http_request.request_completed.is_connected(completed_cb):
+			http_request.request_completed.connect(completed_cb)
 
 # 构建对话提示
 func build_dialog_prompt(speaker_personality: Dictionary, listener_personality: Dictionary,
