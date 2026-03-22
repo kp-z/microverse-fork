@@ -1,0 +1,84 @@
+[gd_scene load_steps=3 format=3 uid="uid://agent_bind_panel_001"]
+
+[ext_resource type="Script" path="res://script/ui/AgentBindPanel.gd" id="1_abp"]
+[ext_resource type="Theme" uid="uid://bqxqxqxqxqxqx" path="res://asset/ui/theme/MainTheme.tres" id="2_theme"]
+
+[node name="AgentBindPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -180.0
+offset_right = 170.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_abp")
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+
+[node name="VBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "Agent 绑定"
+horizontal_alignment = 1
+
+[node name="CurrentLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "当前: 未绑定"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MainPanel/VBox"]
+layout_mode = 2
+
+[node name="AgentScroll" type="ScrollContainer" parent="MainPanel/VBox"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AgentList" type="ItemList" parent="MainPanel/VBox/AgentScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="StatusLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="ButtonContainer" type="HBoxContainer" parent="MainPanel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="BindButton" type="Button" parent="MainPanel/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "绑定"
+
+[node name="UnbindButton" type="Button" parent="MainPanel/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "解绑"
+
+[node name="RefreshButton" type="Button" parent="MainPanel/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "刷新"
+
+[node name="CloseButton" type="Button" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "关闭"

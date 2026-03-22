@@ -45,10 +45,13 @@ func _apply_pixel_font():
 
 # ===== Public API (called by AgentRuntimeTest) =====
 
-func open_dialog(character_name: String = ""):
+func open_dialog(character_name: String = "", agent_name: String = ""):
 	if character_name != "":
 		_current_character = character_name
-	title_label.text = "Chat: %s" % _current_character
+	if agent_name != "":
+		title_label.text = "Chat: %s [%s]" % [_current_character, agent_name]
+	else:
+		title_label.text = "Chat: %s" % _current_character
 	visible = true
 	input_field.grab_focus()
 

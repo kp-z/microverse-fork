@@ -73,6 +73,29 @@ func get_work_logs(character_name: String, offset: int = 0, limit: int = 50) -> 
 	return await _request_json(HTTPClient.METHOD_GET, path, {})
 
 
+## GET /microverse/agents — 获取项目级 Agent 列表
+func get_microverse_agents() -> Dictionary:
+	return await _request_json(HTTPClient.METHOD_GET, "/microverse/agents", {})
+
+
+## GET /microverse/characters/{name} — 获取角色详情（含绑定 Agent）
+func get_character_info(character_name: String) -> Dictionary:
+	var path := "/microverse/characters/%s" % _encode_path_segment(character_name)
+	return await _request_json(HTTPClient.METHOD_GET, path, {})
+
+
+## PUT /microverse/characters/{name}/bind — 绑定角色到 Agent
+func bind_character_agent(character_name: String, agent_id: int) -> Dictionary:
+	var path := "/microverse/characters/%s/bind" % _encode_path_segment(character_name)
+	return await _request_json(HTTPClient.METHOD_PUT, path, {"agent_id": agent_id})
+
+
+## DELETE /microverse/characters/{name}/bind — 解绑角色
+func unbind_character_agent(character_name: String) -> Dictionary:
+	var path := "/microverse/characters/%s/bind" % _encode_path_segment(character_name)
+	return await _request_json(HTTPClient.METHOD_DELETE, path, {})
+
+
 func _encode_path_segment(s: String) -> String:
 	return str(s).uri_encode()
 

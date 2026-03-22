@@ -1,9 +1,10 @@
-[gd_scene load_steps=77 format=4 uid="uid://nhba2jdtsjsx"]
+[gd_scene load_steps=78 format=4 uid="uid://nhba2jdtsjsx"]
 
 [ext_resource type="PackedScene" uid="uid://c8v7x9y2z3a4b" path="res://scene/ui/ActionButtonPanel.tscn" id="0_action"]
 [ext_resource type="PackedScene" uid="uid://dialog_system_001" path="res://scene/ui/AgentDialogSystem.tscn" id="0_dialog"]
 [ext_resource type="PackedScene" uid="uid://task_monitor_panel_001" path="res://scene/ui/TaskMonitorPanel.tscn" id="0_monitor"]
 [ext_resource type="PackedScene" uid="uid://task_control_panel_001" path="res://scene/ui/TaskControlPanel.tscn" id="0_control"]
+[ext_resource type="PackedScene" uid="uid://agent_bind_panel_001" path="res://scene/ui/AgentBindPanel.tscn" id="0_bind"]
 [ext_resource type="Script" path="res://script/OfficeAgentBridge.gd" id="0_bridge"]
 [ext_resource type="Texture2D" uid="uid://bg7vxkearntad" path="res://asset/maps/interiors/3_Bathroom_32x32.png" id="1_xsptx"]
 [ext_resource type="Texture2D" uid="uid://u2qghko6a2k2" path="res://asset/maps/interiors/Room_Builder_32x32.png" id="2_0ao8h"]
@@ -16979,6 +16980,9 @@ visible = false
 visible = false
 
 [node name="TaskMonitorPanel" parent="CanvasLayer" instance=ExtResource("0_monitor")]
+visible = false
+
+[node name="AgentBindPanel" parent="CanvasLayer" instance=ExtResource("0_bind")]
 visible = false
 
 [node name="OfficeAgentBridge" type="Node" parent="CanvasLayer"]
