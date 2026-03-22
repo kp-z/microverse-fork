@@ -62,8 +62,8 @@ layout_mode = 2
 [node name="HelpLabel" type="Label" parent="CanvasLayer/TestUI/PanelContainer/VBoxContainer"]
 layout_mode = 2
 text = "快捷键:
-D - 对话框
-M - 监控面板
-S - 启动任务
+1 - 对话框
+2 - 监控面板
+3 - 启动任务
 ESC - 关闭面板"
 autowrap_mode = 3

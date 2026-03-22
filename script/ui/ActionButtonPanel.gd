@@ -113,16 +113,19 @@ func _on_settings_pressed():
 # 快捷键支持
 func _input(event):
 	if event is InputEventKey and event.pressed and not event.is_echo():
+		# Skip hotkeys when a text field has focus (e.g. AgentDialogSystem input)
+		var focus_owner = get_viewport().gui_get_focus_owner()
+		if focus_owner is LineEdit or focus_owner is TextEdit:
+			return
 		match event.keycode:
-			KEY_D:
+			KEY_1:
 				_on_dialog_pressed()
-			KEY_M:
+			KEY_2:
 				_on_monitor_pressed()
-			KEY_W:
+			KEY_3:
 				_on_work_pressed()
-			KEY_S:
-				if event.ctrl_pressed:
-					_on_settings_pressed()
+			KEY_4:
+				_on_settings_pressed()
 			KEY_TAB:
 				toggle_panel()
 

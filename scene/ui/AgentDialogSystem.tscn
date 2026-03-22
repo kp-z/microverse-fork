@@ -1,0 +1,65 @@
+[gd_scene load_steps=2 format=3 uid="uid://dialog_system_001"]
+
+[ext_resource type="Script" path="res://script/ui/AgentDialogSystem.gd" id="1_ads"]
+
+[node name="AgentDialogSystem" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -160.0
+offset_right = 180.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ads")
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "Chat: Agent"
+horizontal_alignment = 1
+
+[node name="HistoryScroll" type="ScrollContainer" parent="MainPanel/VBox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HistoryLabel" type="Label" parent="MainPanel/VBox/HistoryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = ""
+autowrap_mode = 3
+
+[node name="InputContainer" type="HBoxContainer" parent="MainPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="InputField" type="LineEdit" parent="MainPanel/VBox/InputContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Type message..."
+
+[node name="SendButton" type="Button" parent="MainPanel/VBox/InputContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Send"
+
+[node name="CloseButton" type="Button" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "Close"

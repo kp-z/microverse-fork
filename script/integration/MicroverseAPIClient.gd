@@ -79,6 +79,7 @@ func _encode_path_segment(s: String) -> String:
 
 func _request_json(method: int, path: String, body: Dictionary) -> Dictionary:
 	var http := HTTPRequest.new()
+	http.timeout = 15.0  # 防止后端无响应时协程永久挂起
 	add_child(http)
 	var url := base_url + api_prefix + path
 	var headers := PackedStringArray(["Content-Type: application/json", "Accept: application/json"])

@@ -38,23 +38,29 @@ func _on_settings_changed(new_settings: Dictionary):
 	print("[APIManager] 设置已更新 - API类型：", current_settings.api_type, "，模型：", current_settings.model)
 
 # 生成对话（支持角色独立AI设置）
-func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest:
+# 返回值：open_adventure 模式返回 Dictionary（包含 text/success 字段），本地模式返回 HTTPRequest
+func generate_dialog(prompt: String, character_name: String = "") -> Variant:
 	# 确保节点已经初始化
 	if not is_inside_tree():
 		push_error("APIManager is not properly initialized!")
 		return null
-	
+
 	# 等待三帧以确保完全初始化
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await get_tree().process_frame
-	
+
+	# 使用 Open Adventure 后端 Microverse Chat（与本地 Ollama 等互斥）
+	if str(current_settings.get("dialog_provider", "local")) == "open_adventure":
+		print("[APIManager] 对话来源：Open Adventure /microverse/chat，角色：", character_name)
+		return await _call_open_adventure_chat(prompt, character_name)
+
 	# 创建新的HTTPRequest节点，不清理之前的节点
 	var http_request = HTTPRequest.new()
 	# 为每个请求设置唯一名称
 	http_request.name = "HTTPRequest_" + str(Time.get_unix_time_from_system()) + "_" + str(randi())
 	add_child(http_request)
-	
+
 	# 设置请求完成后自动清理
 	http_request.request_completed.connect(func(result, response_code, headers, body):
 		# 延迟清理，确保回调函数执行完毕
@@ -64,11 +70,6 @@ func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest
 				http_request.queue_free()
 		)
 	)
-	# 使用 Open Adventure 后端 Microverse Chat（与本地 Ollama 等互斥）
-	if str(current_settings.get("dialog_provider", "local")) == "open_adventure":
-		print("[APIManager] 对话来源：Open Adventure /microverse/chat，角色：", character_name)
-		await _emit_open_adventure_chat_result(http_request, prompt, character_name)
-		return http_request
 
 	# 获取角色对应的AI设置（本地/第三方 LLM）
 	var ai_settings = current_settings
@@ -91,38 +92,21 @@ func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest
 	return http_request
 
 
-## 调用 MicroverseAPIClient，并伪造 request_completed 以复用现有解析链（APIConfig.microverse_chat）
-func _emit_open_adventure_chat_result(http_request: HTTPRequest, prompt: String, character_name: String) -> void:
+## 调用 MicroverseAPIClient，直接返回结果 Dictionary（不再通过 HTTPRequest 信号中转）
+func _call_open_adventure_chat(prompt: String, character_name: String) -> Dictionary:
 	var who := character_name.strip_edges() if character_name.strip_edges() != "" else "Unknown"
 	var client := get_node_or_null("/root/MicroverseAPIClient")
 	if client == null:
 		push_error("[APIManager] MicroverseAPIClient 未注册，无法使用 open_adventure 对话模式")
-		http_request.request_completed.emit(
-			HTTPRequest.RESULT_CANT_CONNECT,
-			503,
-			PackedStringArray(),
-			"{}".to_utf8_buffer()
-		)
-		return
+		return {"success": false, "text": "", "error": "MicroverseAPIClient not found"}
 	if client.has_method("refresh_config_from_settings"):
 		client.refresh_config_from_settings()
 	var res: Dictionary = await client.post_microverse_chat(who, prompt, {})
-	# 等一帧再发信号，确保调用方已连接 request_completed
-	await get_tree().process_frame
-	var result := HTTPRequest.RESULT_SUCCESS
-	var code := 200
-	var body_bytes: PackedByteArray
 	if res.get("success", false):
 		var text := str(res.data.get("response", ""))
-		body_bytes = JSON.stringify({"microverse_chat": text}).to_utf8_buffer()
+		return {"success": true, "text": text, "error": ""}
 	else:
-		result = HTTPRequest.RESULT_CANT_CONNECT
-		code = 502
-		body_bytes = JSON.stringify({
-			"microverse_chat": "",
-			"_error": str(res.get("error", "unknown"))
-		}).to_utf8_buffer()
-	http_request.request_completed.emit(result, code, PackedStringArray(), body_bytes)
+		return {"success": false, "text": "", "error": str(res.get("error", "unknown"))}
 
 # 生成AI决策
 func generate_decision(prompt: String, character_name: String = "") -> HTTPRequest:

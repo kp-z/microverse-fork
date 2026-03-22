@@ -46,7 +46,7 @@ func start_conversation():
 	if not is_active:
 		return
 	
-	print("[ConversationManager] 开始对话：%s <-> %s" % [speaker.name, listener.name])
+	print("[ConversationManager] start conversation: %s <-> %s" % [speaker.name, listener.name])
 	await generate_dialog()
 
 # 结束对话
@@ -54,7 +54,7 @@ func end_conversation():
 	if not is_active:
 		return
 	
-	print("[ConversationManager] 结束对话：%s" % conversation_id)
+	print("[ConversationManager] end conversation: %s" % conversation_id)
 	
 	# 保存聊天记录
 	if speaker and speaker.has_node("ChatHistory"):
@@ -78,8 +78,8 @@ func generate_dialog():
 		return
 	
 	print("\n[对话系统] 开始生成对话")
-	print("[对话系统] 说话者：", speaker.name)
-	print("[对话系统] 听众：", listener.name)
+	print("[DialogSystem] speaker: ", speaker.name)
+	print("[DialogSystem] listener: ", listener.name)
 	
 	# 获取说话者和听众的人设
 	var speaker_personality = CharacterPersonality.get_personality(speaker.name)
@@ -115,14 +115,22 @@ func generate_dialog():
 		api_manager = main_loop.root.get_node("APIManager")
 	
 	if not api_manager:
-		print("[ConversationManager] 无法获取APIManager")
+		print("[ConversationManager] APIManager not found")
 		return
 	
 	# 传入说话者名称，供 open_adventure 模式 POST /microverse/chat 使用
-	http_request = await api_manager.generate_dialog(prompt, str(speaker.name))
-	
-	# 连接回调函数
-	# Web/HTML5 导出下 is_connected(方法引用) 可能报 “callable is null”，统一用 Callable 判断与连接
+	var result = await api_manager.generate_dialog(prompt, str(speaker.name))
+
+	# open_adventure 模式直接返回 Dictionary，无需信号中转
+	if result is Dictionary:
+		if result.get("success", false):
+			_handle_dialog_text(str(result.get("text", "")))
+		else:
+			print("[对话系统] dialog failed: ", result.get("error", "unknown"))
+		return
+
+	# 本地 LLM 模式返回 HTTPRequest，通过信号回调处理
+	http_request = result
 	if http_request:
 		var completed_cb := Callable(self, "_on_request_completed")
 		if not http_request.request_completed.is_connected(completed_cb):
@@ -188,65 +196,73 @@ func build_dialog_prompt(speaker_personality: Dictionary, listener_personality: 
 	
 	return prompt
 
-# HTTP请求完成回调
+# HTTP请求完成回调（仅本地 LLM 模式使用）
 func _on_request_completed(result, response_code, headers, body):
 	if not is_active:
 		return
-	
-	print("\n[对话系统] 收到API响应")
-	print("[对话系统] 响应状态码：", response_code)
-	
-	if result != HTTPRequest.RESULT_SUCCESS:
-		print("[对话系统] HTTP请求失败，错误码：", result)
-		return
-	
 
-	
+	print("\n[对话系统] 收到API响应")
+	print("[DialogSystem] status: ", response_code)
+
+	if result != HTTPRequest.RESULT_SUCCESS:
+		print("[DialogSystem] request failed: ", result)
+		return
+
 	var response = JSON.parse_string(body.get_string_from_utf8())
-	var dialog_text = ""
-	
+	if response == null or not response is Dictionary:
+		print("[DialogSystem] json parse error: ", body.get_string_from_utf8().left(200))
+		return
+
 	# 获取设置
 	var settings_manager = null
 	var main_loop = Engine.get_main_loop() as SceneTree
 	if main_loop and main_loop.root:
 		settings_manager = main_loop.root.get_node("SettingsManager")
-	
+
 	if not settings_manager:
-		print("[ConversationManager] 无法获取SettingsManager")
+		print("[ConversationManager] SettingsManager not found")
 		return
 	var current_settings = settings_manager.get_settings()
-	
+
 	# 使用APIConfig统一解析响应
-	dialog_text = APIConfig.parse_response(current_settings.api_type, response)
+	var dialog_text = APIConfig.parse_response(current_settings.api_type, response)
 	if dialog_text == "":
-		print("[对话系统] 响应解析失败")
+		print("[DialogSystem] parse failed")
 		return
-	
+
+	_handle_dialog_text(dialog_text)
+
+
+# 统一处理对话文本（open_adventure 和本地 LLM 共用）
+func _handle_dialog_text(dialog_text: String):
+	if not is_active or dialog_text.strip_edges() == "":
+		return
+
 	# 创建对话气泡并显示对话内容
 	var dialog_bubble = dialog_bubble_scene.instantiate()
 	Engine.get_main_loop().root.add_child(dialog_bubble)
 	# 设置目标节点为说话的角色，这样气泡会自动跟随
 	dialog_bubble.target_node = speaker
 	dialog_bubble.show_dialog(dialog_text)
-	print("[对话系统] 生成的对话：", dialog_text)
-	
+	print("[DialogSystem] dialog: ", dialog_text)
+
 	# 保存对话记录到双方的ChatHistory中
 	# 格式化消息内容："说话者: 消息内容"
 	var formatted_message = speaker.name + ": " + dialog_text
-	
+
 	if speaker.has_node("ChatHistory"):
 		var speaker_history = speaker.get_node("ChatHistory")
 		speaker_history.add_message(listener.name, formatted_message)
-		print("说话者聊天记录保存成功")
-	
+		print("[ConversationManager] speaker history saved")
+
 	if listener.has_node("ChatHistory"):
 		var listener_history = listener.get_node("ChatHistory")
 		listener_history.add_message(speaker.name, formatted_message)
-		print("听众聊天记录保存成功")
-	
+		print("[ConversationManager] listener history saved")
+
 	# 发出对话生成信号
 	dialog_generated.emit(speaker.name, dialog_text)
-	
+
 	# 让对方角色回复
 	if listener and is_active:
 		# 交换说话者和听众的角色
@@ -299,7 +315,7 @@ func get_character_status_info(character: CharacterBody2D) -> String:
 	var memory_text = memory_manager.get_formatted_memories_for_prompt(character)
 	# 移除开头的换行符，因为你们已经添加了标题
 	if memory_text.begins_with("\n\n记忆信息："):
-		memory_text = memory_text.substr(8)  # 移除"\n\n记忆信息："
+		memory_text = memory_text.substr(7)  # "\n\n记忆信息：" = 7 个字符
 	status_info += memory_text
 	
 	status_info += "\n\n【情感关系】"

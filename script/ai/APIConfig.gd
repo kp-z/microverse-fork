@@ -268,7 +268,7 @@ static func parse_response(api_type: String, response: Dictionary, character_nam
 			return response.response
 		
 		"openai":
-			if not "choices" in response or not response.has("choices") or response.choices.size() == 0:
+			if not response.has("choices") or response["choices"].size() == 0:
 				print("[APIConfig] %s 的OpenAI格式API响应错误：缺少choices字段或为空" % character_name)
 				return ""
 			if not response.choices[0].has("message") or not response.choices[0].message.has("content"):

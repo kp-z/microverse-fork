@@ -52,9 +52,9 @@ func _setup_test_ui():
 	if not test_ui:
 		return
 
-	var open_dialog_btn = test_ui.get_node("VBoxContainer/OpenDialogButton")
-	var open_monitor_btn = test_ui.get_node("VBoxContainer/OpenMonitorButton")
-	var start_work_btn = test_ui.get_node("VBoxContainer/StartWorkButton")
+	var open_dialog_btn = test_ui.get_node("PanelContainer/VBoxContainer/OpenDialogButton")
+	var open_monitor_btn = test_ui.get_node("PanelContainer/VBoxContainer/OpenMonitorButton")
+	var start_work_btn = test_ui.get_node("PanelContainer/VBoxContainer/StartWorkButton")
 
 	if open_dialog_btn:
 		open_dialog_btn.pressed.connect(_on_open_dialog_pressed)

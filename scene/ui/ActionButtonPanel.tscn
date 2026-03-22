@@ -50,16 +50,16 @@ theme_override_constants/separation = 8
 
 [node name="DialogButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "💬 对话 (D)"
+text = "💬 对话 (1)"
 
 [node name="MonitorButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "📊 监控 (M)"
+text = "📊 监控 (2)"
 
 [node name="WorkButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "🔧 工作 (W)"
+text = "🔧 工作 (3)"
 
 [node name="SettingsButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "⚙️ 设置 (S)"
+text = "⚙️ 设置 (4)"

@@ -639,8 +639,5 @@ func _force_refresh_rendering():
 	modulate = Color.WHITE
 	animated_sprite.modulate = Color.WHITE
 
-	# 确保没有被遮罩或裁剪
-	clip_contents = false
-
 	# 强制标记为需要重绘
 	queue_redraw()

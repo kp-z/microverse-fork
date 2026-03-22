@@ -38,7 +38,11 @@ var _api_config_loaded: bool = false
 func _ready():
 	_load_api_config()
 	load_settings()
-	print("[SettingsManager] 设置管理器已初始化")
+	# Web export cannot use local Ollama; auto-switch to open_adventure
+	if OS.has_feature("web") and current_settings.get("dialog_provider", "local") == "local":
+		current_settings["dialog_provider"] = "open_adventure"
+		print("[SettingsManager] Web mode detected, auto-switched dialog_provider to open_adventure")
+	print("[SettingsManager] initialized, dialog_provider=", current_settings.get("dialog_provider"))
 
 # 加载API配置
 func _load_api_config():

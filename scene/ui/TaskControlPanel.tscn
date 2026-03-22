@@ -1,0 +1,66 @@
+[gd_scene load_steps=2 format=3 uid="uid://task_control_panel_001"]
+
+[ext_resource type="Script" path="res://script/ui/TaskControlPanel.gd" id="1_tcp"]
+
+[node name="TaskControlPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -100.0
+offset_right = 150.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tcp")
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TitleLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "Task Control"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "Status: idle"
+horizontal_alignment = 1
+
+[node name="InfoLabel" type="Label" parent="MainPanel/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ButtonContainer" type="HBoxContainer" parent="MainPanel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="StartButton" type="Button" parent="MainPanel/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+text = "Start"
+
+[node name="StopButton" type="Button" parent="MainPanel/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+text = "Stop"
+disabled = true
+
+[node name="CloseButton" type="Button" parent="MainPanel/VBox"]
+layout_mode = 2
+text = "Close"
