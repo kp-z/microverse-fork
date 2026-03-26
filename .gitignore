@@ -3,9 +3,9 @@
 .import/
 *.import
 
-# 导出文件（这些会动态生成，不需要版本控制）
-export/
-*.tmp
+# 导出文件临时和备份
+export/*.tmp
+export/*.pck-*
 
 # Godot 特定忽略
 export.cfg

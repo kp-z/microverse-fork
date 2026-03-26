@@ -36,7 +36,10 @@ func _ready():
 	work_button.pressed.connect(_on_work_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 
-	print("[ActionButtonPanel] 初始化完成")
+	# 进入游戏时默认隐藏 UI，按 TAB 唤出
+	visible = false
+
+	print("[ActionButtonPanel] 初始化完成（按 TAB 显示）")
 
 func _apply_pixel_font():
 	# 应用像素字体到所有文本元素
@@ -127,7 +130,15 @@ func _input(event):
 			KEY_4:
 				_on_settings_pressed()
 			KEY_TAB:
-				toggle_panel()
+				# 整个面板隐藏时先显示，再切换展开/收起
+				if not visible:
+					visible = true
+					is_expanded = true
+					button_container.visible = true
+					button_container.modulate.a = 1.0
+					toggle_button.text = "▼"
+				else:
+					toggle_panel()
 
 # 响应式布局
 func _notification(what):

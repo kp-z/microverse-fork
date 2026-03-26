@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://c8v7x9y2z3a4b"]
+[gd_scene format=3 uid="uid://c8v7yay203a4b"]
 
-[ext_resource type="Script" path="res://script/ui/ActionButtonPanel.gd" id="1_a1b2c"]
-[ext_resource type="Theme" uid="uid://bqxqxqxqxqxqx" path="res://asset/ui/theme/MainTheme.tres" id="2_d3e4f"]
+[ext_resource type="Script" uid="uid://bbjxy606h5nwv" path="res://script/ui/ActionButtonPanel.gd" id="1_a1b2c"]
+[ext_resource type="Theme" uid="uid://dr8jrw86hyix5" path="res://asset/ui/theme/MainTheme.tres" id="2_d3e4f"]
 
-[node name="ActionButtonPanel" type="Control"]
+[node name="ActionButtonPanel" type="Control" unique_id=951003675]
 layout_mode = 3
 anchors_preset = 3
 anchor_left = 1.0
@@ -18,7 +18,7 @@ grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("1_a1b2c")
 
-[node name="MainPanel" type="PanelContainer" parent="."]
+[node name="MainPanel" type="PanelContainer" parent="." unique_id=1538018146]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -27,39 +27,40 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_d3e4f")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainPanel" unique_id=1500667033]
 layout_mode = 2
 
-[node name="HeaderContainer" type="HBoxContainer" parent="MainPanel/VBoxContainer"]
+[node name="HeaderContainer" type="HBoxContainer" parent="MainPanel/VBoxContainer" unique_id=2135227531]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="MainPanel/VBoxContainer/HeaderContainer"]
+[node name="TitleLabel" type="Label" parent="MainPanel/VBoxContainer/HeaderContainer" unique_id=1102929559]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "快捷操作"
 horizontal_alignment = 1
 
-[node name="ToggleButton" type="Button" parent="MainPanel/VBoxContainer/HeaderContainer"]
+[node name="ToggleButton" type="Button" parent="MainPanel/VBoxContainer/HeaderContainer" unique_id=1509629562]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = "▼"
 
-[node name="ButtonContainer" type="VBoxContainer" parent="MainPanel/VBoxContainer"]
+[node name="ButtonContainer" type="VBoxContainer" parent="MainPanel/VBoxContainer" unique_id=2037459227]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="DialogButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
+[node name="DialogButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer" unique_id=2079393198]
 layout_mode = 2
-text = "💬 对话 (1)"
+text = "对话 (1)"
 
-[node name="MonitorButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
+[node name="MonitorButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer" unique_id=1498749405]
 layout_mode = 2
-text = "📊 监控 (2)"
+text = "监控 (2)"
 
-[node name="WorkButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
+[node name="WorkButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer" unique_id=1357665438]
 layout_mode = 2
-text = "🔧 工作 (3)"
+text = "工作 (3)"
 
-[node name="SettingsButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer"]
+[node name="SettingsButton" type="Button" parent="MainPanel/VBoxContainer/ButtonContainer" unique_id=1122356237]
 layout_mode = 2
-text = "⚙️ 设置 (4)"
+text = "设置 (4)"

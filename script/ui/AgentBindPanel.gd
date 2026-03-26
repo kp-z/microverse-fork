@@ -6,6 +6,7 @@ extends Control
 signal agent_bound(character_name: String, agent_id: int, agent_name: String)
 signal agent_unbound(character_name: String)
 
+@onready var main_panel = $MainPanel
 @onready var title_label = $MainPanel/VBox/TitleLabel
 @onready var current_label = $MainPanel/VBox/CurrentLabel
 @onready var agent_list = $MainPanel/VBox/AgentScroll/AgentList
@@ -16,6 +17,7 @@ signal agent_unbound(character_name: String)
 @onready var close_button = $MainPanel/VBox/CloseButton
 
 var pixel_font = preload("res://asset/fonts/fusion-pixel-12px-proportional-zh_hans.otf")
+var speech_tex = preload("res://asset/ui/speech.png")
 
 var _current_character: String = ""
 var _agents: Array = []
@@ -25,6 +27,7 @@ var _is_loading: bool = false
 
 func _ready():
 	_apply_pixel_font()
+	_apply_speech_bg()
 	_api_client = get_node_or_null("/root/MicroverseAPIClient")
 
 	bind_button.pressed.connect(_on_bind_pressed)
@@ -46,6 +49,19 @@ func _apply_pixel_font():
 	if agent_list:
 		agent_list.add_theme_font_override("font", pixel_font)
 		agent_list.add_theme_font_size_override("font_size", 11)
+
+func _apply_speech_bg():
+	var sb := StyleBoxTexture.new()
+	sb.texture = speech_tex
+	sb.texture_margin_left = 10
+	sb.texture_margin_top = 10
+	sb.texture_margin_right = 10
+	sb.texture_margin_bottom = 10
+	sb.content_margin_left = 12
+	sb.content_margin_top = 12
+	sb.content_margin_right = 12
+	sb.content_margin_bottom = 12
+	main_panel.add_theme_stylebox_override("panel", sb)
 
 # ===== Public API =====
 

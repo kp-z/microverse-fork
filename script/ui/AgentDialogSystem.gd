@@ -15,13 +15,16 @@ signal dialog_submitted(character_name: String, prompt: String)
 @onready var close_button = $MainPanel/VBox/CloseButton
 
 var pixel_font = preload("res://asset/fonts/fusion-pixel-12px-proportional-zh_hans.otf")
+var speech_tex = preload("res://asset/ui/speech.png")
 
 var _current_character: String = ""
 var _api_client = null
 var _is_waiting: bool = false
+var _thinking_tag: String = "[System]: 思考中..."
 
 func _ready():
 	_apply_pixel_font()
+	_apply_speech_bg()
 	_api_client = get_node_or_null("/root/MicroverseAPIClient")
 
 	send_button.pressed.connect(_on_send_pressed)
@@ -42,6 +45,19 @@ func _apply_pixel_font():
 	if input_field:
 		input_field.add_theme_font_override("font", pixel_font)
 		input_field.add_theme_font_size_override("font_size", font_size)
+
+func _apply_speech_bg():
+	var sb := StyleBoxTexture.new()
+	sb.texture = speech_tex
+	sb.texture_margin_left = 10
+	sb.texture_margin_top = 10
+	sb.texture_margin_right = 10
+	sb.texture_margin_bottom = 10
+	sb.content_margin_left = 12
+	sb.content_margin_top = 12
+	sb.content_margin_right = 12
+	sb.content_margin_bottom = 12
+	main_panel.add_theme_stylebox_override("panel", sb)
 
 # ===== Public API (called by AgentRuntimeTest) =====
 
@@ -72,6 +88,7 @@ func _on_send_pressed():
 	_is_waiting = true
 	send_button.disabled = true
 	send_button.text = "..."
+	_show_thinking()
 
 	if _api_client == null:
 		_append_message("System", "MicroverseAPIClient not found")
@@ -83,6 +100,7 @@ func _on_send_pressed():
 		_api_client.refresh_config_from_settings()
 
 	var result = await _api_client.post_microverse_chat(_current_character, prompt, {})
+	_hide_thinking()
 	if result.get("success", false):
 		var text := str(result.data.get("response", ""))
 		_append_message(_current_character, text)
@@ -104,3 +122,15 @@ func _append_message(sender: String, text: String):
 	await get_tree().process_frame
 	if history_scroll:
 		history_scroll.scroll_vertical = history_scroll.get_v_scroll_bar().max_value
+
+func _show_thinking():
+	history_label.text += _thinking_tag + "\n"
+	await get_tree().process_frame
+	if history_scroll:
+		history_scroll.scroll_vertical = history_scroll.get_v_scroll_bar().max_value
+
+func _hide_thinking():
+	var t: String = history_label.text
+	var idx := t.rfind(_thinking_tag)
+	if idx >= 0:
+		history_label.text = t.substr(0, idx) + t.substr(idx + _thinking_tag.length() + 1)

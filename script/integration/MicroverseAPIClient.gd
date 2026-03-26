@@ -8,6 +8,11 @@ var api_prefix: String = "/api"
 var _auth_token: String = ""
 
 func _ready() -> void:
+	if OS.has_feature("web"):
+		var origin = JavaScriptBridge.eval("window.location.origin", true)
+		if origin and str(origin) != "":
+			base_url = str(origin)
+			print("[MicroverseAPIClient] Web mode: base_url=", base_url)
 	call_deferred("_bind_settings_manager")
 
 
@@ -21,8 +26,11 @@ func _bind_settings_manager() -> void:
 
 
 func _on_settings_changed(new_settings: Dictionary) -> void:
-	var u := str(new_settings.get("open_adventure_base_url", base_url)).strip_edges()
-	base_url = u.rstrip("/")
+	# Web 模式下 base_url 已由 _ready() 从 window.location.origin 设定，
+	# 不允许 SettingsManager 的默认值（127.0.0.1:8000）覆盖
+	if not OS.has_feature("web"):
+		var u := str(new_settings.get("open_adventure_base_url", base_url)).strip_edges()
+		base_url = u.rstrip("/")
 	api_prefix = str(new_settings.get("open_adventure_api_prefix", api_prefix))
 	if not api_prefix.begins_with("/"):
 		api_prefix = "/" + api_prefix
@@ -41,7 +49,7 @@ func post_microverse_chat(character_name: String, prompt: String, context: Varia
 	}
 	if context != null and typeof(context) == TYPE_DICTIONARY:
 		payload["context"] = context
-	return await _request_json(HTTPClient.METHOD_POST, "/microverse/chat", payload)
+	return await _request_json(HTTPClient.METHOD_POST, "/microverse/chat", payload, 120.0)
 
 
 ## POST /microverse/characters/{name}/work/start
@@ -100,9 +108,9 @@ func _encode_path_segment(s: String) -> String:
 	return str(s).uri_encode()
 
 
-func _request_json(method: int, path: String, body: Dictionary) -> Dictionary:
+func _request_json(method: int, path: String, body: Dictionary, timeout_sec: float = 15.0) -> Dictionary:
 	var http := HTTPRequest.new()
-	http.timeout = 15.0  # 防止后端无响应时协程永久挂起
+	http.timeout = timeout_sec
 	add_child(http)
 	var url := base_url + api_prefix + path
 	var headers := PackedStringArray(["Content-Type: application/json", "Accept: application/json"])
