@@ -12,9 +12,6 @@ var current_chair = null  # 新增：当前坐着的椅子
 var target_chair = null  # 新增：目标椅子（用于自动坐下）
 var auto_sit_enabled = false  # 新增：是否启用自动坐下
 
-# AI代理系统
-var ai_agent: AIAgent
-
 # 避障相关变量
 var stuck_timer = 0.0
 var last_position = Vector2.ZERO
@@ -53,9 +50,7 @@ func _ready():
 			var chat_history = chat_history_scene.instantiate()
 			add_child(chat_history)
 
-	# 创建AI代理
-	ai_agent = AIAgent.new()
-	add_child(ai_agent)
+	# 内置 AI 已停用：不在 CharacterController 中自动初始化
 
 	# 创建AI模型显示标签
 	create_ai_model_label()
@@ -73,8 +68,7 @@ func _ready():
 
 func set_selected(selected: bool):
 	is_selected = selected
-	# 切换AI代理的控制状态
-	ai_agent.toggle_player_control(selected)
+	# 内置 AI 已停用：不再切换 ai_agent 控制状态
 	# 可以在这里添加选中效果,比如添加一个光环或改变颜色
 
 func move_to(target: Vector2):
@@ -270,9 +264,7 @@ func _physics_process(delta):
 	if z_index < 0:
 		z_index = 0
 
-	# AI控制的角色或被选中的角色都可以移动
-	if not is_selected and ai_agent.is_player_controlled:
-		return
+	# 内置 AI 已停用：不再依据 ai_agent 状态拦截角色逻辑
 		
 	# 处理键盘输入 - 只有被选中的角色才能响应键盘输入
 	var input_direction = Vector2.ZERO
